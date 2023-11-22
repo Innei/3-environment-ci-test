@@ -26,6 +26,8 @@ jobs:
           git push origin $SYNC_BRANCH
           gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
 
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Sync stable to dev and canary
         if: github.ref == 'refs/heads/stable'
         run: |
@@ -40,3 +42,6 @@ jobs:
           git checkout -b $SYNC_BRANCH_CANARY
           git push origin $SYNC_BRANCH_CANARY
           gh pr create --base canary --head $SYNC_BRANCH_CANARY --title "Sync stable branch to canary branch" --body "Automatic sync"
+
+        env:
+          GH_TOKEN: ${{ github.token }}
