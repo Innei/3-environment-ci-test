@@ -20,7 +20,6 @@ jobs:
 
       - name: Prepare sync branch
         id: branch
-        if: github.ref == 'refs/heads/dev'
         run: |
           echo "SYNC_BRANCH_DEV_CANARY=sync/dev-to-canary-$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SYNC_BRANCH_STABLE_DEV=sync/stable-to-dev-$(date +'%Y%m%d')" >> $GITHUB_ENV
@@ -38,7 +37,8 @@ jobs:
         # env:
         #   GH_TOKEN: ${{ github.token }}
 
-      - name: Push new README.md
+      - name: Push branch
+        if: github.ref == 'refs/heads/dev'
         uses: mikeal/publish-to-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,7 +47,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.PAT }}
+          # token: ${{ secrets.PAT }}
           commit-message: Sync branch
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
@@ -58,22 +58,22 @@ jobs:
           title: Sync branch dev to canary
           draft: false
 
-      - name: Sync stable to dev and canary
-        if: github.ref == 'refs/heads/stable'
-        run: |
-          # Sync stable to dev
-          git checkout stable
-          SYNC_BRANCH_DEV="sync/stable-to-dev-$(date +'%Y%m%d')"
-          git checkout -b $SYNC_BRANCH_DEV
-          git push origin $SYNC_BRANCH_DEV
-          gh pr create --base dev --head $SYNC_BRANCH_DEV --title "Sync stable branch to dev branch" --body "Automatic sync"
+      # - name: Sync stable to dev and canary
+      #   if: github.ref == 'refs/heads/stable'
+      #   run: |
+      #     # Sync stable to dev
+      #     git checkout stable
+      #     SYNC_BRANCH_DEV="sync/stable-to-dev-$(date +'%Y%m%d')"
+      #     git checkout -b $SYNC_BRANCH_DEV
+      #     git push origin $SYNC_BRANCH_DEV
+      #     gh pr create --base dev --head $SYNC_BRANCH_DEV --title "Sync stable branch to dev branch" --body "Automatic sync"
 
-          # Sync stable to canary
-          git checkout stable
-          SYNC_BRANCH_CANARY="sync/stable-to-canary-$(date +'%Y%m%d')"
-          git checkout -b $SYNC_BRANCH_CANARY
-          git push origin $SYNC_BRANCH_CANARY
-          gh pr create --base canary --head $SYNC_BRANCH_CANARY --title "Sync stable branch to canary branch" --body "Automatic sync"
+      #     # Sync stable to canary
+      #     git checkout stable
+      #     SYNC_BRANCH_CANARY="sync/stable-to-canary-$(date +'%Y%m%d')"
+      #     git checkout -b $SYNC_BRANCH_CANARY
+      #     git push origin $SYNC_BRANCH_CANARY
+      #     gh pr create --base canary --head $SYNC_BRANCH_CANARY --title "Sync stable branch to canary branch" --body "Automatic sync"
 
-        env:
-          GH_TOKEN: ${{ github.token }}
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
