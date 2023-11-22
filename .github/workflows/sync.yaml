@@ -18,17 +18,46 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
 
-      - name: Sync dev to canary
+      - name: Prepare sync branch
+        id: branch
         if: github.ref == 'refs/heads/dev'
         run: |
-          git checkout dev
-          SYNC_BRANCH="sync/dev-to-canary-$(date +'%Y%m%d')"
-          git checkout -b $SYNC_BRANCH
-          git push origin $SYNC_BRANCH
-          gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
+          echo "SYNC_BRANCH_DEV_CANARY=sync/dev-to-canary-$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SYNC_BRANCH_STABLE_DEV=sync/stable-to-dev-$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "SYNC_BRANCH_STABLE_CANARY=sync/stable-to-canary-$(date +'%Y%m%d')" >> $GITHUB_ENV
 
+        # - name: Sync dev to canary
+        #   if: github.ref == 'refs/heads/dev'
+        #   run: |
+        #     git checkout dev
+        #     SYNC_BRANCH="sync/dev-to-canary-$(date +'%Y%m%d')"
+        #     git checkout -b $SYNC_BRANCH
+        #     git push origin $SYNC_BRANCH
+        #     gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
+
+        # env:
+        #   GH_TOKEN: ${{ github.token }}
+
+      - name: Push new README.md
+        uses: mikeal/publish-to-github-action@master
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ env.SYNC_BRANCH_DEV_CANARY }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.PAT }}
+          commit-message: Sync branch
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: canary
+          base: ${{ env.SYNC_BRANCH_DEV_CANARY }}
+          delete-branch: true
+          title: Sync branch dev to canary
+          draft: false
+
       - name: Sync stable to dev and canary
         if: github.ref == 'refs/heads/stable'
         run: |
