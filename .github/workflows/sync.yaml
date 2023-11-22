@@ -36,8 +36,8 @@ jobs:
             echo "No changes to sync"
             exit 0
           fi
-          git push origin ${{ env.SYNC_BRANCH_DEV_CANARY }} -f
-          gh pr create --base canary --head ${{ env.SYNC_BRANCH_DEV_CANARY }} --title "Sync dev branch to canary branch" --body "Automatic sync" || exit 0
+          git push origin $SYNC_BRANCH_DEV -f
+          gh pr create --base canary --head $SYNC_BRANCH_DEV --title "Sync dev branch to canary branch" --body "Automatic sync" || exit 0
 
         env:
           GH_TOKEN: ${{ github.token }}
