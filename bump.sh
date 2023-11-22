@@ -1,7 +1,6 @@
-$HEAD=bump/to-dev
-$BASE=canary
-
-$TO=dev
+HEAD=bump/to-dev
+BASE=canary
+TO=dev
 
 git checkout $BASE
 git checkout -B $HEAD
