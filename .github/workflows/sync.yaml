@@ -61,7 +61,7 @@ jobs:
           git checkout stable
           SYNC_BRANCH_CANARY=${{ env.SYNC_BRANCH_STABLE_CANARY }}
           git checkout -B $SYNC_BRANCH_CANARY
-          DIFF=$(git diff origin/canary...$SYNC_BRANCH_DEV)
+          DIFF=$(git diff origin/canary...$SYNC_BRANCH_CANARY)
           if [ -z "$DIFF" ]; then
             echo "No changes to sync"
             exit 0
