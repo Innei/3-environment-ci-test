@@ -58,17 +58,12 @@ jobs:
           git push origin $SYNC_BRANCH_DEV -f
           gh pr create --base dev --head $SYNC_BRANCH_DEV --title "Sync stable branch to dev branch" --body "Automatic sync" || exit 0
 
-          # Sync stable to canary
-          git checkout stable
-          SYNC_BRANCH_CANARY=${{ env.SYNC_BRANCH_STABLE_CANARY }}
-          git checkout -B $SYNC_BRANCH_CANARY
-          DIFF=$(git diff origin/canary...$SYNC_BRANCH_CANARY)
-          if [ -z "$DIFF" ]; then
-            echo "No changes to sync"
-            exit 0
-          fi
-          git push origin $SYNC_BRANCH_CANARY -f
-          gh pr create --base canary --head $SYNC_BRANCH_CANARY --title "Sync stable branch to canary branch" --body "Automatic sync" || exit 0
+          # # Sync stable to canary
+          # git checkout stable
+          # SYNC_BRANCH_CANARY=${{ env.SYNC_BRANCH_STABLE_CANARY }}
+          # git checkout -B $SYNC_BRANCH_CANARY
+          # git push origin $SYNC_BRANCH_CANARY -f
+          # gh pr create --base canary --head $SYNC_BRANCH_CANARY --title "Sync stable branch to canary branch" --body "Automatic sync" || exit 0
 
         env:
           GH_TOKEN: ${{ github.token }}
