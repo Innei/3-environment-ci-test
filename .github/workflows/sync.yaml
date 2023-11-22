@@ -28,10 +28,17 @@ jobs:
       - name: Sync dev to canary
         if: github.ref == 'refs/heads/dev'
         run: |
+          git fetch --all
           git checkout dev
-          git checkout -B ${{ env.SYNC_BRANCH_DEV_CANARY }}
-          git push origin ${{ env.SYNC_BRANCH_DEV_CANARY }} -f
-          gh pr create --base canary --head ${{ env.SYNC_BRANCH_DEV_CANARY }} --title "Sync dev branch to canary branch" --body "Automatic sync" || exit 0
+          SYNC_BRANCH_DEV=${{ env.SYNC_BRANCH_DEV_CANARY }}
+          git checkout -B $SYNC_BRANCH_DEV
+          git diff origin/canary...$SYNC_BRANCH_DEV --exit-code || HAS_DIFF=true
+          if [ -z "$HAS_DIFF" ]; then
+            echo "No changes to sync"
+            exit 0
+          fi
+          git push origin $SYNC_BRANCH_DEV -f
+          gh pr create --base canary --head $SYNC_BRANCH_DEV --title "Sync dev branch to canary branch" --body "Automatic sync" || exit 0
 
         env:
           GH_TOKEN: ${{ github.token }}
@@ -43,6 +50,11 @@ jobs:
           git checkout stable
           SYNC_BRANCH_DEV=${{ env.SYNC_BRANCH_STABLE_DEV }}
           git checkout -B $SYNC_BRANCH_DEV
+          DIFF=$(git diff origin/canary...$SYNC_BRANCH_DEV)
+          if [ -z "$DIFF" ]; then
+            echo "No changes to sync"
+            exit 0
+          fi
           git push origin $SYNC_BRANCH_DEV -f
           gh pr create --base dev --head $SYNC_BRANCH_DEV --title "Sync stable branch to dev branch" --body "Automatic sync" || exit 0
 
