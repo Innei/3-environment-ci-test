@@ -30,6 +30,7 @@ jobs:
         run: |
           git checkout dev
           git checkout -b ${{ env.SYNC_BRANCH_DEV_CANARY }}
+          ls -a
           git push origin ${{ env.SYNC_BRANCH_DEV_CANARY }} -f
           # gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
 
