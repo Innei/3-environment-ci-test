@@ -21,6 +21,7 @@ jobs:
       - name: Sync dev to canary
         if: github.ref == 'refs/heads/dev'
         run: |
+          git checkout dev
           SYNC_BRANCH="sync/dev-to-canary-$(date +'%Y%m%d')"
           git checkout -b $SYNC_BRANCH
           git push origin $SYNC_BRANCH
@@ -32,12 +33,14 @@ jobs:
         if: github.ref == 'refs/heads/stable'
         run: |
           # Sync stable to dev
+          git checkout stable
           SYNC_BRANCH_DEV="sync/stable-to-dev-$(date +'%Y%m%d')"
           git checkout -b $SYNC_BRANCH_DEV
           git push origin $SYNC_BRANCH_DEV
           gh pr create --base dev --head $SYNC_BRANCH_DEV --title "Sync stable branch to dev branch" --body "Automatic sync"
 
           # Sync stable to canary
+          git checkout stable
           SYNC_BRANCH_CANARY="sync/stable-to-canary-$(date +'%Y%m%d')"
           git checkout -b $SYNC_BRANCH_CANARY
           git push origin $SYNC_BRANCH_CANARY
