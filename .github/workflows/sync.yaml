@@ -25,24 +25,23 @@ jobs:
           echo "SYNC_BRANCH_STABLE_DEV=sync/stable-to-dev-$(date +'%Y%m%d')" >> $GITHUB_ENV
           echo "SYNC_BRANCH_STABLE_CANARY=sync/stable-to-canary-$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-        # - name: Sync dev to canary
-        #   if: github.ref == 'refs/heads/dev'
-        #   run: |
-        #     git checkout dev
-        #     SYNC_BRANCH="sync/dev-to-canary-$(date +'%Y%m%d')"
-        #     git checkout -b $SYNC_BRANCH
-        #     git push origin $SYNC_BRANCH
-        #     gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
-
-        # env:
-        #   GH_TOKEN: ${{ github.token }}
-
-      - name: Push branch
+      - name: Sync dev to canary
         if: github.ref == 'refs/heads/dev'
-        uses: mikeal/publish-to-github-action@master
+        run: |
+          git checkout dev
+          git checkout -b ${{ env.SYNC_BRANCH_DEV_CANARY }}
+          git push origin ${{ env.SYNC_BRANCH_DEV_CANARY }} -f
+          # gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
+
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: ${{ env.SYNC_BRANCH_DEV_CANARY }}
+          GH_TOKEN: ${{ github.token }}
+
+      # - name: Push branch
+      #   if: github.ref == 'refs/heads/dev'
+      #   uses: mikeal/publish-to-github-action@master
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     BRANCH_NAME: ${{ env.SYNC_BRANCH_DEV_CANARY }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
@@ -54,7 +53,7 @@ jobs:
           signoff: false
           base: canary
           branch: ${{ env.SYNC_BRANCH_DEV_CANARY }}
-          delete-branch: true
+          # delete-branch: true
           title: Sync branch dev to canary
           draft: false
 
