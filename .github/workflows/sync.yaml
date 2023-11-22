@@ -52,8 +52,8 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          branch: canary
-          base: ${{ env.SYNC_BRANCH_DEV_CANARY }}
+          base: canary
+          branch: ${{ env.SYNC_BRANCH_DEV_CANARY }}
           delete-branch: true
           title: Sync branch dev to canary
           draft: false
