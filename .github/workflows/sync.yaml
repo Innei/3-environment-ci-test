@@ -1,0 +1,42 @@
+name: Branch Synchronization
+
+on:
+  push:
+    branches:
+      - dev
+      - stable
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+      - name: Sync dev to canary
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          SYNC_BRANCH="sync/dev-to-canary-$(date +'%Y%m%d')"
+          git checkout -b $SYNC_BRANCH
+          git push origin $SYNC_BRANCH
+          gh pr create --base canary --head $SYNC_BRANCH --title "Sync dev branch to canary branch" --body "Automatic sync"
+
+      - name: Sync stable to dev and canary
+        if: github.ref == 'refs/heads/stable'
+        run: |
+          # Sync stable to dev
+          SYNC_BRANCH_DEV="sync/stable-to-dev-$(date +'%Y%m%d')"
+          git checkout -b $SYNC_BRANCH_DEV
+          git push origin $SYNC_BRANCH_DEV
+          gh pr create --base dev --head $SYNC_BRANCH_DEV --title "Sync stable branch to dev branch" --body "Automatic sync"
+
+          # Sync stable to canary
+          SYNC_BRANCH_CANARY="sync/stable-to-canary-$(date +'%Y%m%d')"
+          git checkout -b $SYNC_BRANCH_CANARY
+          git push origin $SYNC_BRANCH_CANARY
+          gh pr create --base canary --head $SYNC_BRANCH_CANARY --title "Sync stable branch to canary branch" --body "Automatic sync"
